@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func main() {
-	// // 1. Unbuffered channel
+	// 1. Unbuffered channel
 	ch1 := make(chan int)
 	go func() { ch1 <- 1 }()
 	fmt.Println(<-ch1)
@@ -15,23 +15,23 @@ func main() {
 	ch2 <- 3
 	fmt.Println(<-ch2)
 
-	// // 3. Send-only channel
+	// 3. Send-only channel
 	ch3 := make(chan int)
 	go func(ch chan<- int) { ch <- 4 }(ch3) // Expanded version is at the end (sendOnly func)
 	fmt.Println(<-ch3)
 
-	// // 4. Receive-only channel
+	// 4. Receive-only channel
 	ch4 := make(chan int, 1)
 	ch4 <- 5
 	func(ch <-chan int) { // Expanded version is at the end (receiveOnly func)
 		fmt.Println(<-ch)
 	}(ch4)
 
-	// // 5. Nil channel
+	// 5. Nil channel
 	var ch5 chan int
 	fmt.Println(ch5 == nil)
 
-	// // 6. Closed channel
+	// 6. Closed channel
 	ch6 := make(chan int, 1)
 	ch6 <- 6
 	close(ch6)
@@ -42,7 +42,7 @@ func main() {
 	value, ok = <-ch6
 	fmt.Println("closed channel after empty:", value, "ok:", ok)
 
-	// // 7. Channel of channels
+	// 7. Channel of channels
 	ch7 := make(chan chan int)
 	go func() {
 		inner := make(chan int, 1)
@@ -50,6 +50,30 @@ func main() {
 		ch7 <- inner
 	}()
 	fmt.Println(<-(<-ch7))
+
+	// 8. bool channel: signal + true/false value
+	ch8 := make(chan bool)
+	go func() {
+		ch8 <- true
+	}()
+	fmt.Println("bool channel:", <-ch8)
+
+	// 9. number channel: signal + numeric value/code
+	ch9 := make(chan int)
+	go func() {
+		ch9 <- 200
+	}()
+	fmt.Println("number channel:", <-ch9)
+
+	// 10. struct{} channel: pure signal only,
+	// no data, good for signaling, memory usage 0
+	ch10 := make(chan struct{})
+	go func() {
+		close(ch10)
+	}()
+	<-ch10
+	fmt.Println("struct{} channel: done")
+
 }
 
 // EXAMPLE OF Send Only and Receive Only go routines
