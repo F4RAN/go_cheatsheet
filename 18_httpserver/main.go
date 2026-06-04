@@ -40,27 +40,27 @@ func AuthMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	mux := http.NewServeMux()
+	router := http.NewServeMux()
 
 	userController := &UserController{}
 	adminHandler := &AdminHandler{}
 
 	// Usecase 1: simple function route
-	mux.HandleFunc("/health", healthHandler)
+	router.HandleFunc("/health", healthHandler)
 
 	// Usecase 2: controller method route
-	mux.HandleFunc("/profile", userController.profileHandler)
+	router.HandleFunc("/profile", userController.profileHandler)
 
 	// Usecase 3: object that implements http.Handler
-	mux.Handle("/admin", adminHandler)
+	router.Handle("/admin", adminHandler)
 
 	// Usecase 4: route with middleware
-	mux.Handle("/secure-profile",
+	router.Handle("/secure-profile",
 		AuthMiddleware(
 			http.HandlerFunc(userController.profileHandler),
 		),
 	)
 
 	fmt.Println("Server running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
