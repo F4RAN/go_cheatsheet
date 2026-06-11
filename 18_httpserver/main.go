@@ -39,6 +39,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// 5. Wildcard route: captures the rest of the path
+func wildcardHandler(w http.ResponseWriter, r *http.Request) {
+	path := r.PathValue("path")
+
+	w.Write([]byte("Wildcard path: " + path))
+}
+
 func main() {
 	router := http.NewServeMux()
 
@@ -60,7 +67,10 @@ func main() {
 			http.HandlerFunc(userController.profileHandler),
 		),
 	)
-
+	
+	// Usecase 5: wildcard route
+	router.HandleFunc("/files/{path...}", wildcardHandler)
+	
 	fmt.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
